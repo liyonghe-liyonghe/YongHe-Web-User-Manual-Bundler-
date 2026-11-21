@@ -1,0 +1,43 @@
+[package]
+name = "manualbundler"
+version = "0.8.7"
+description = "泳和-网页/用户手册合成器"
+edition = "2021"
+license = "MIT"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", default-features = false, features = ["wry"] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+rayon = "1.10"
+md5 = "0.8"
+thiserror = "2"
+regex = "1"
+# 文档格式导入支持
+zip = { version = "2", default-features = false, features = ["deflate"] }
+pulldown-cmark = { version = "0.12", default-features = false, features = ["html"] }
+pdf-extract = "0.7"
+encoding_rs = "0.8"
+# PDF 保真渲染（pdfium 动态库运行时加载）
+pdfium-render = { version = "0.8", features = ["image"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+# 网页外链 http(s) 图片抓取内嵌（rustls，无系统依赖）
+ureq = { version = "2", default-features = false, features = ["tls", "gzip"] }
+# 系统用户目录定位（桌面/文档/下载/图片，用于缺失资源自动搜索）
+dirs = "5"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+strip = false
+codegen-units = 1

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="{{AUX_LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+{{SHELL_CSS}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-collapse" id="sidebarCollapse" title="{{AUX_COLLAPSE}}">«</button>
+    <button class="sidebar-rail" id="sidebarRail" title="{{AUX_EXPAND}}">
+      <span class="rail-icon">»</span>
+      <span class="rail-text">{{AUX_EXPAND}}</span>
+    </button>
+    <div class="sidebar-head">
+      <div class="logo">{{TITLE}}</div>
+      <div class="ver">{{AUX_MANUAL}}</div>
+    </div>
+    <nav class="sidebar-nav" id="navContainer"></nav>
+  </aside>
+  <main class="content">
+    <div class="content-toolbar">
+      <div class="crumb" id="crumbBar">{{BREADCRUMB}} / <b>{{AUX_LOADING}}</b></div>
+      <div class="hint"></div>
+    </div>
+    <div class="frame-wrap">
+      <iframe id="contentFrame" srcdoc="" title="手册内容"></iframe>
+    </div>
+  </main>
+</div>
+<script>
+const NAV_DATA = {{NAV_JSON}};
+let currentFile = {{INIT_FILE_JSON}};
+let currentScheme = {{SCHEME_JSON}};
+
+function renderItem(it){
+  const active = it.file===currentFile?'active':'';
+  return '<a href="#" data-file="'+it.file+'" data-crumb="'+it.crumb+'" class="'+active+'">'+it.name+'</a>';
+}
+
+function renderA(){
+  let html = '<div class="nav-a">';
+  NAV_DATA.forEach(function(g){ html += renderAGroup(g); });
+  html += '</div>';
+  return html;
+}
+function renderAGroup(g){
+  let h = '<div class="group" data-group="'+g.id+'">';
+  h += '<div class="group-title"><span class="arrow"></span>'+g.title+'</div>';
+  h += '<div class="group-items">';
+  (g.items||[]).forEach(function(it){ h += renderItem(it); });
+  (g.groups||[]).forEach(function(sub){ h += renderAGroup(sub); });
+  h += '</div></div>';
+  return h;
+}
+
+function renderB(){
+  let html = '<div class="nav-b">';
+  NAV_DATA.forEach(function(g){ html += renderBGroup(g); });
+  html += '</div>';
+  return html;
+}
+function renderBGroup(g){
+  let h = '<div class="group">';
+  h += '<div class="group-title">'+g.title+'<span class="tag">'+(g.items||[]).length+'</span></div>';
+  h += '<div class="group-items">';
+  (g.items||[]).forEach(function(it){ h += renderItem(it); });
+  (g.groups||[]).forEach(function(sub){ h += renderBGroup(sub); });
+  h += '</div></div>';
+  return h;
+}
+
+function renderC(){
+  seqCounter = 0;
+  let html = '<div class="nav-c">';
+  NAV_DATA.forEach(function(g){ html += renderCGroup(g); });
+  html += '</div>';
+  return html;
+}
+let seqCounter = 0;
+function renderCGroup(g){
+  let itemsHtml = '';
+  (g.items||[]).forEach(function(it){
+    seqCounter++;
+    itemsHtml += '<a href="#" data-file="'+it.file+'" data-crumb="'+it.crumb+'" class="'+(it.file===currentFile?'active':'')+'"><span class="idx">'+seqCounter+'</span>'+it.name+'</a>';
+  });
+  (g.groups||[]).forEach(function(sub){ itemsHtml += renderCGroup(sub); });
+  return '<div class="group"><div class="group-title">'+g.title+'</div><div class="group-items">'+itemsHtml+'</div></div>';
+}
+
+function renderD(){
+  let html = '<div class="nav-d">';
+  NAV_DATA.forEach(function(g){ html += renderDGroup(g); });
+  html += '</div>';
+  return html;
+}
+function renderDGroup(g){
+  let h = '<div class="group"><div class="group-title">'+g.title+'</div><div class="group-items">';
+  (g.items||[]).forEach(function(it, i){
+    h += '<a href="#" data-file="'+it.file+'" data-crumb="'+it.crumb+'" class="'+(it.file===currentFile?'active':'')+'">'+it.name+'<span class="badge">'+String(i+1).padStart(2,'0')+'</span></a>';
+  });
+  (g.groups||[]).forEach(function(sub){ h += renderDGroup(sub); });
+  h += '</div></div>';
+  return h;
+}
+
+function redraw(){
+  const container = document.getElementById('navContainer');
+  // currentScheme 由后端注入为小写（a/b/c/d），统一转小写后查表
+  const scheme = (currentScheme||'c').toLowerCase();
+  const map = {a:renderA,b:renderB,c:renderC,d:renderD};
+  container.innerHTML = map[scheme]();
+  if(scheme==='a'){
+    container.querySelectorAll('.nav-a .group-title').forEach(function(t){
+      t.addEventListener('click', function(){ t.closest('.group').classList.toggle('open'); });
+    });
+    container.querySelectorAll('.nav-a .group').forEach(function(g){ g.classList.add('open'); });
+  }
+}
+
+function loadPage(fname){
+  const frame = document.getElementById('contentFrame');
+  const key = FILEMAP[fname] || fname;
+  frame.srcdoc = PAGES[key] || '';
+}
+
+window.loadPageFromIframe = function(fname){
+  currentFile = fname;
+  loadPage(fname);
+  const crumb = findCrumb(fname);
+  document.getElementById('crumbBar').innerHTML = '{{BREADCRUMB}} / <b>'+crumb+'</b>';
+  redraw();
+};
+
+function findCrumb(fname){
+  function walk(nodes){
+    for(const g of (nodes||[])){
+      for(const it of (g.items||[])){
+        if(it.file===fname) return it.crumb;
+      }
+      const r = walk(g.groups);
+      if(r) return r;
+    }
+    return null;
+  }
+  return walk(NAV_DATA) || fname;
+}
+
+document.addEventListener('click', function(e){
+  const a = e.target.closest && e.target.closest('a[data-file]');
+  if(!a) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const f = a.dataset.file;
+  if(f===currentFile) return;
+  currentFile = f;
+  loadPage(f);
+  document.getElementById('crumbBar').innerHTML = '{{BREADCRUMB}} / <b>'+a.dataset.crumb+'</b>';
+  redraw();
+}, true);
+
+{{PAGES_JSON}}
+{{FILEMAP_JSON}}
+
+// ===== 侧栏收起/展开（选项：侧栏可收起，默认开启） =====
+let SIDEBAR_COLLAPSIBLE = {{SIDEBAR_COLLAPSIBLE_JSON}};
+(function(){
+  const app = document.querySelector('.app');
+  const colBtn = document.getElementById('sidebarCollapse');
+  const railBtn = document.getElementById('sidebarRail');
+  if (!SIDEBAR_COLLAPSIBLE) {
+    if (colBtn) colBtn.style.display = 'none';
+    if (railBtn) railBtn.style.display = 'none';
+    return;
+  }
+  if (colBtn) colBtn.addEventListener('click', function(){ app.classList.add('nav-collapsed'); });
+  if (railBtn) railBtn.addEventListener('click', function(){ app.classList.remove('nav-collapsed'); });
+})();
+
+redraw();
+(function(){
+  for(const g of NAV_DATA){
+    for(const it of (g.items||[])){
+      if(it.file){
+        document.getElementById('crumbBar').innerHTML = '{{BREADCRUMB}} / <b>'+it.crumb+'</b>';
+        loadPage(it.file);
+        return;
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>

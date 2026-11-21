@@ -1,0 +1,14 @@
+{
+  "name": "manualbundler",
+  "version": "0.8.7",
+  "description": "泳和-网页/用户手册合成器",
+  "main": "index.js",
+  "scripts": {
+    "test": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "build": "cargo build --release --manifest-path src-tauri/Cargo.toml"
+  },
+  "keywords": ["manual-bundler", "offline-html", "document-converter", "tauri", "chinese-encoding"],
+  "author": "泳和-网页/用户手册合成器",
+  "license": "MIT",
+  "type": "commonjs"
+}

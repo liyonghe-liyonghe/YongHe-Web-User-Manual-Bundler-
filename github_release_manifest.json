@@ -1,0 +1,63 @@
+{
+  "schema": "github_release_manifest/1",
+  "manual_name": "泳和-网页/用户手册合成器",
+  "asof": "2026-11-21",
+  "release_exe": "泳和-网页用户手册合成器-v0.8.7.exe",
+  "release_tag": "v0.8.7",
+  "whitelist": [
+    {"path": "src", "type": "dir", "criterion": "运行面", "ref": "src-tauri/tauri.conf.json:7 frontendDist=../src"},
+    {"path": "src/index.html", "type": "file", "criterion": "运行面", "ref": "src/index.html:6 app.title"},
+    {"path": "src/app.js", "type": "file", "criterion": "运行面", "ref": "src/index.html:7-8 引入脚本"},
+    {"path": "src/i18n.js", "type": "file", "criterion": "运行面", "ref": "src/index.html 语言包入口"},
+    {"path": "src/styles.css", "type": "file", "criterion": "运行面", "ref": "src/index.html:7 引入样式"},
+    {"path": "src/locales", "type": "dir", "criterion": "运行面", "ref": "src/i18n.js 外置语言文件"},
+    {"path": "src-tauri/src", "type": "dir", "criterion": "运行面", "ref": "src-tauri/Cargo.toml [package] lib/main"},
+    {"path": "src-tauri/examples", "type": "dir", "criterion": "测试收集面", "ref": "cargo check --examples"},
+    {"path": "src-tauri/capabilities", "type": "dir", "criterion": "运行面", "ref": "capabilities/default.json:2 schema"},
+    {"path": "src-tauri/icons", "type": "dir", "criterion": "打包资源", "ref": "src-tauri/tauri.conf.json:35-40 bundle.icon"},
+    {"path": "src-tauri/resources/pdfium.dll", "type": "file", "criterion": "运行面", "ref": "src-tauri/tauri.conf.json:45 bundle.resources"},
+    {"path": "src-tauri/resources/pdfium-LICENSE.txt", "type": "file", "criterion": "合规", "ref": "src-tauri/tauri.conf.json:45 bundle.resources"},
+    {"path": "src-tauri/templates", "type": "dir", "criterion": "运行面", "ref": "bundler 外壳模板目录"},
+    {"path": "src-tauri/gen", "type": "dir", "criterion": "构建链", "ref": "capabilities/default.json:2 指向 gen/schemas"},
+    {"path": "src-tauri/build.rs", "type": "file", "criterion": "构建链", "ref": "src-tauri/Cargo.toml build-dependencies"},
+    {"path": "src-tauri/Cargo.toml", "type": "file", "criterion": "构建链", "ref": "Cargo 包清单"},
+    {"path": "src-tauri/Cargo.lock", "type": "file", "criterion": "构建链", "ref": "依赖锁定"},
+    {"path": "src-tauri/tauri.conf.json", "type": "file", "criterion": "运行配置", "ref": "Tauri 应用配置"},
+    {"path": "_tools/gen_encoding_matrix.py", "type": "file", "criterion": "开发辅助", "ref": "测试素材生成脚本（已参数化）"},
+    {"path": "package.json", "type": "file", "criterion": "构建链", "ref": "npm 脚本入口"},
+    {"path": "README.md", "type": "file", "criterion": "发布说明", "ref": "用途/构建/运行/许可"},
+    {"path": "LICENSE", "type": "file", "criterion": "合规", "ref": "MIT 许可全文"},
+    {"path": "CHANGELOG.md", "type": "file", "criterion": "发布说明", "ref": "版本演进可读"},
+    {"path": ".github", "type": "dir", "criterion": "构建链", "ref": ".github/workflows/ci.yml"},
+    {"path": "docs", "type": "dir", "criterion": "发布说明", "ref": "docs/用户手册.md"},
+    {"path": "make_github_release_assets.py", "type": "file", "criterion": "发布工具", "ref": "本装配脚本"},
+    {"path": "github_release_manifest.json", "type": "file", "criterion": "发布工具", "ref": "本清单（单一事实源）"}
+  ],
+  "exclude_private": [
+    {"path": "__pycache__", "type": "dir", "reason": "Python 缓存"},
+    {"path": "_test_out", "type": "dir", "reason": "测试输出（169 文件，含 test 产物）"},
+    {"path": "src-tauri/target", "type": "dir", "reason": "Rust 构建产物"},
+    {"path": "泳和-网页用户手册合成器-v0.8.7.exe", "type": "file", "reason": "根层 exe 仅 Release 托管（已裁定事项4）"}
+  ],
+  "test_coupled_excludes": [
+    {"assertion_file": "src-tauri/examples/audit_bundle.rs", "excluded_ledger": "_test_out/pages", "note": "原依赖本机测试账，已参数化为 MB_AUDIT_INPUT_DIR"},
+    {"assertion_file": "src-tauri/examples/encoding_matrix.rs", "excluded_ledger": "_test_out/encoding_pages", "note": "原依赖本机测试账，已参数化为 MB_MATRIX_INPUT_DIR"},
+    {"assertion_file": "src-tauri/examples/format_matrix.rs", "excluded_ledger": "_test_out/pages", "note": "原依赖本机测试账，已参数化为 MB_MATRIX_INPUT_DIR"},
+    {"assertion_file": "_tools/gen_encoding_matrix.py", "excluded_ledger": "_test_out/docs", "note": "原依赖本机测试账，已参数化为 MB_DOCS_DIR"}
+  ],
+  "runtime_generated": [
+    {"path": "_tools/gen_result.json", "reason": "脚本运行期生成的统计结果，不入随库"},
+    {"path": "__pycache__/*.pyc", "reason": "编译缓存，不入随库"},
+    {"path": "src-tauri/target/**", "reason": "构建产物，不入随库"},
+    {"path": "release-src-* / release-assets-*", "reason": "本装配脚本输出族，不入随库"}
+  ],
+  "gitignore_append": [
+    "/src-tauri/target/",
+    "/_test_out/",
+    "__pycache__/",
+    "*.pyc",
+    "/release-src-*/",
+    "/release-assets-*/",
+    "泳和-网页用户手册合成器-*.exe"
+  ]
+}

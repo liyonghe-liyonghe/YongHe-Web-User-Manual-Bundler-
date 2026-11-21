@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"默认 capability —— 授予 invoke 命令、对话框插件以及核心 API 权限","remote":{"urls":["http://localhost/*","http://127.0.0.1/*","tauri://localhost/*"]},"local":true,"windows":["main"],"permissions":["core:default","dialog:default"]}}
