@@ -1,75 +1,81 @@
-# 泳和-网页/用户手册合成器
+# Yonghe — Web Page / User Manual Synthesizer
 
-把 PDF、Word、PPT、WPS、ODF、RTF、Markdown、TXT 等异构文档编排成一本**可离线打开的单文件 HTML 网页手册**。图片、样式、脚本、文档全部内嵌，导出的 HTML 一个文件即可分发，断网可看。
+Synthesizes web pages, images, documents, and other files — 23 formats in total — into a single structured, hierarchically navigable HTML manual.
+All resources (images, styles, scripts) are fully embedded; both phones and PCs can read it completely offline through the browser they already have.
+Supports 13 interface languages; currently Windows only, Linux planned. Built on Tauri v2 + Rust, MIT licensed.
 
-- 版本：`0.8.7`
-- 许可：MIT（见 `LICENSE`）
-- 首个公开标签：`v0.8.7`
-- 仓库地址：待定（由发布者创建仓库后填入；本件不预置任何未确认地址）
+- Version: `0.8.7`
+- License: MIT (see `LICENSE`)
+- First public tag: `v0.8.7`
+- Repository URL: TBD (to be filled in by the publisher after creating the repository; this document does not preset any unconfirmed address)
 
-## 功能
+## Features
 
-- **异构文档统一转换**：支持 PDF/DOC/DOCX/WPS/ODT/ODP/PPT/PPTX/RTF/MD/TXT/HTML 等格式；PDF 逐页保真渲染，动态库缺失时降级为文本提取。
-- **多编码宽容解码**：19 种编码候选配合汉字/假名/谚文门控，旧编码（GBK/Big5/Shift-JIS 等）文档自动还原。
-- **导航结构可视化编排**：左栏投喂目录、中栏拖拽分组排序改名、右栏实时预览。
-- **缺件自动补齐**：页面引用的本地资源缺失时，自动在已记目录搜索补齐，兜底弹窗选择来源文件夹。
-- **单文件离线分发**：内嵌全部资源与 http(s) 外链图片，导出 HTML 断网可看。
-- **多语言界面**：13 种界面语言（含阿拉伯语 RTL）；界面与增量辅助控件多语，页面正文语种由素材决定，程序不翻译正文。13 种词条内嵌于 `src/i18n.js`（避免 `file://` 下 fetch 被阻止）；`src/locales/zh-CN.json` 是中文基准包的同步副本，不参与运行时加载。
-- **并行处理**：rayon 按核心数并行处理页面转换与媒体解码。
+- **Unify documents of different formats into a single structured, hierarchically navigable HTML manual**. After exporting the HTML, view it offline on phones or PCs using the browsers already installed everywhere — no need to install various software.
+  Supported formats:
+  Web pages: .html .htm .mht .mhtml
+  Images: .png .jpg .jpeg .gif .webp .bmp .svg .ico
+  Documents: .pdf .doc .docx .rtf .wps .odt .odp .ppt .pptx .txt .md; PDFs are rendered page-by-page with full fidelity, falling back to text extraction when the dynamic library is missing.
+- **Tolerant multi-encoding decoding**: 19 encoding candidates combined with Han/Kana/Hangul gating automatically restores documents in legacy encodings (GBK/Big5/Shift-JIS, etc.).
+- **Visual navigation structure editing**: feed the table of contents in the left pane, drag to group/reorder/rename in the middle pane, live preview in the right pane.
+- **Automatic missing-asset completion**: when local resources referenced by a page are missing, the app automatically searches recorded directories to fill them in, with a fallback dialog to choose a source folder.
+- **Single-file offline distribution**: embeds all assets plus http(s) external images; the exported HTML works offline.
+- **Multilingual interface**: 13 interface languages; the UI and incremental auxiliary controls are multilingual, while the language of page content is determined by the source material — the program does not translate body text. All 13 language packs are embedded in `src/i18n.js` (to avoid fetch being blocked under `file://`); `src/locales/zh-CN.json` is a synchronized copy of the Chinese baseline pack and is not loaded at runtime.
+- **Parallel processing**: rayon parallelizes page conversion and media decoding across CPU cores.
 
-## 运行
+## Running
 
-方式一：下载 Release 附件中的可执行文件，直接运行（绿色版，无需安装）。
+Option 1: Download the executable from the Release attachments and run it directly (portable build, no installation required).
 
-方式二：从源码构建后运行（见下节）。
+Option 2: Build from source and run (see the next section).
 
-## 从源码构建
+## Building from Source
 
-前置工具链：
+Prerequisites:
 
-- Rust（ edition 2021；Tauri 2.x）
-- Tauri v2 桌面依赖（Windows 需 WebView2、MSVC 构建工具）
-- Node.js（仅用于 npm 脚本入口；前端为原生 JS，无框架构建步骤）
+- Rust (edition 2021; Tauri 2.x)
+- Tauri v2 desktop dependencies (Windows requires WebView2 and MSVC build tools)
+- Node.js (only for npm script entry points; the frontend is vanilla JS with no framework build step)
 
-步骤：
+Steps:
 
 ```powershell
 cd src-tauri
 cargo build --release
 ```
 
-开发模式运行：
+Run in development mode:
 
 ```powershell
 cargo tauri dev
 ```
 
-> `src-tauri/resources/pdfium.dll` 为 PDF 保真渲染动态库，须与可执行文件同目录部署；其许可见 `src-tauri/resources/pdfium-LICENSE.txt`。
+> `src-tauri/resources/pdfium.dll` is the dynamic library for PDF fidelity rendering and must be deployed in the same directory as the executable; its license is in `src-tauri/resources/pdfium-LICENSE.txt`.
 
-## 测试
+## Testing
 
 ```powershell
 cd src-tauri
 cargo test
 ```
 
-现查 `#[test]` 用例 50 个（锚点见 `发布准备-现状锚点登记-20261121.md`）。
+There are currently 50 `#[test]` cases (anchor list in `发布准备-现状锚点登记-20261121.md`).
 
-## 目录结构
+## Directory Structure
 
 ```
-src/                 前端（原生 JS/HTML/CSS，i18n 内嵌语言包）
-src-tauri/           Rust 后端（Tauri v2）
-  src/               转换、打包、MHTML、命令层
-  examples/          本地测试与矩阵审计工具（非随库发布物）
-  resources/         pdfium.dll 及其许可
-  capabilities/      桌面权限配置
-  icons/             应用图标
-_tools/              测试素材生成脚本（开发辅助，非随库发布物）
+src/                 Frontend (vanilla JS/HTML/CSS, i18n with embedded language packs)
+src-tauri/           Rust backend (Tauri v2)
+  src/               Conversion, packaging, MHTML, command layer
+  examples/          Local test and matrix audit tools (not shipped with the library)
+  resources/         pdfium.dll and its license
+  capabilities/      Desktop permission configuration
+  icons/             Application icons
+_tools/              Test asset generation scripts (development aid, not shipped with the library)
 ```
 
-随库白名单与排除清单见 `发布准备-随库白名单清单-20261121.md` 等准备件。
+For the ship whitelist and exclusion list, see the preparation documents such as `发布准备-随库白名单清单-20261121.md`.
 
-## 许可
+## License
 
-本项目 MIT 许可，详见 `LICENSE`。第三方组件 pdfium 采用 BSD-3-Clause，全文见 `src-tauri/resources/pdfium-LICENSE.txt`。
+This project is MIT licensed; see `LICENSE` for details. The third-party component pdfium is BSD-3-Clause licensed; the full text is in `src-tauri/resources/pdfium-LICENSE.txt`.
