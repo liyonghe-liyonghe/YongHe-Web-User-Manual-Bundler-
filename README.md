@@ -3,7 +3,11 @@
 Synthesizes web pages, images, documents, and other files — 23 formats in total — into a single structured, hierarchically navigable HTML manual.
 All resources (images, styles, scripts) are fully embedded; both phones and PCs can read it completely offline through the browser they already have.
 Supports 13 interface languages; currently Windows only, Linux planned. Built on Tauri v2 + Rust, MIT licensed.
-<img width="1102" height="792" alt="image" src="https://github.com/user-attachments/assets/c2b4a6a5-95dd-48b3-b0eb-efa2bdb895ce" />
+
+<img width="1102" height="792" alt="interface" src="https://github.com/user-attachments/assets/a64f171e-0efc-4990-8740-2c2d886a3cb3" />
+<img width="1508" height="437" alt="image-2" src="https://github.com/user-attachments/assets/b453ac82-eab1-4569-9264-9547720e88db" />
+<img width="1508" height="437" alt="image-3" src="https://github.com/user-attachments/assets/56f66c84-e62e-4d45-89cf-ce1dc2ee9e50" />
+
 
 
 - Version: `0.8.7`
